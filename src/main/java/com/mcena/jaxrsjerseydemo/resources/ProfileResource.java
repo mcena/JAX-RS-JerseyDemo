@@ -11,6 +11,7 @@ import java.util.List;
 @Path("/profiles")
 public class ProfileResource {
 
+
     ProfileService profileService = new ProfileService();
 
     @GET
@@ -49,5 +50,4 @@ public class ProfileResource {
         profileService.removeProfile(profileName);
         return "profile removed!";
     }
-
 }

@@ -4,9 +4,7 @@ package com.mcena.jaxrsjerseydemo.model;
 import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @XmlRootElement
 public class Message {
@@ -16,6 +14,7 @@ public class Message {
     private String author;
     @JsonbTransient //ignores hashmap serialization
     private Map<Long, Comment> commentMap = new HashMap<>();
+    private List<Link> links = new ArrayList<>();
 
     public Message () {
 
@@ -66,5 +65,20 @@ public class Message {
 
     public void setCommentMap(Map<Long, Comment> commentMap) {
         this.commentMap = commentMap;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
+    public void addLink(String url, String rel) {
+        Link link = new Link();
+        link.setLink(url);
+        link.setRel(rel);
+        links.add(link);
     }
 }

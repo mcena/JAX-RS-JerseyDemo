@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.glassfish.jersey.server.Uri;
 
 import java.util.List;
 
@@ -22,8 +23,14 @@ public class MessageResource {
 
     @GET
     @Path("/{messageId}")
-    public Message getMessage(@PathParam("messageId") long messageId) {
-        return messageService.getMessage(messageId);
+    public Message getMessage(@PathParam("messageId") long messageId, @Context UriInfo uriInfo) {
+        Message message = messageService.getMessage(messageId);
+        // HATEOAS
+        // TODO: implement in service layer
+        message.addLink(getUriForSelf(uriInfo, message),"self");
+        message.addLink(getUriForProfile(uriInfo, message), "profile");
+        message.addLink(getUriForComments(uriInfo, message), "comments");
+        return message;
     }
 
     @POST
@@ -62,5 +69,33 @@ public class MessageResource {
     @Path("/{messageId}/comments")
     public CommentResource getCommentResource() {
         return new CommentResource();
+    }
+
+    // private methods
+    private String getUriForSelf(UriInfo uriInfo, Message message) {
+        String uri = uriInfo.getBaseUriBuilder()
+                .path(MessageResource.class)
+                .path(Long.toString(message.getId()))
+                .build().toString();
+        return uri;
+    }
+
+    private String getUriForProfile(UriInfo uriInfo, Message message) {
+        String uri = uriInfo.getBaseUriBuilder()
+                .path(ProfileResource.class)
+                .path(message.getAuthor())
+                .build().toString();
+        return uri;
+    }
+
+    private String getUriForComments(UriInfo uriInfo, Message message) {
+        String uri = uriInfo.getBaseUriBuilder()
+                .path(MessageResource.class)
+                .path(MessageResource.class, "getCommentResource")
+                //.path(CommentResource.class)
+                .resolveTemplate("messageId", message.getId())
+                .build().toString();
+        return uri;
+
     }
 }
